@@ -44,7 +44,7 @@ public class UserControllerTest extends AbstractTest {
     }
 
     @Test
-    public void validateToken() throws Exception {
+    public void validateToken_OK() throws Exception {
 
         String uri = "/users/token";
         MvcResult mvcResult = mvc.perform(MockMvcRequestBuilders.get(uri)
@@ -69,7 +69,7 @@ public class UserControllerTest extends AbstractTest {
     }
 
     @Test
-    public void changePassword() throws Exception {
+    public void changePassword_OK() throws Exception {
 
         JwtTokenUtil jwtTokenUtil = new JwtTokenUtil("4dsight", 432000L);
         String username = "muratakkus";
