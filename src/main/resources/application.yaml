@@ -1,0 +1,29 @@
+server:
+  servlet:
+    context-path:
+  port: 8080
+
+spring:
+  profiles:
+    active: dev
+
+  jackson:
+    serialization:
+      indent-output: true
+  main:
+    allow-bean-definition-overriding: true
+
+jwt:
+  secret: "4dSignKey"
+  expiration: 432000 # 120 * 60* 60
+
+
+logging:
+  level:
+    org:
+      springframework:
+        security: DEBUG
+
+
+
+
