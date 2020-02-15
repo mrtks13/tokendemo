@@ -5,12 +5,12 @@ import com.forsight.tokendemo.dto.response.ChangePasswordResponseDto;
 import com.forsight.tokendemo.util.JwtTokenUtil;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.jupiter.api.BeforeEach;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+import org.springframework.web.util.NestedServletException;
 
 import static org.junit.Assert.assertEquals;
 
@@ -23,10 +23,6 @@ public class UserControllerTest extends AbstractTest {
         super.setUp();
     }
 
-
-    String token;
-    String URL;
-
     @Test
     public void sendUrl_OK() throws Exception {
 
@@ -36,10 +32,12 @@ public class UserControllerTest extends AbstractTest {
 
         int status = mvcResult.getResponse().getStatus();
         assertEquals(200, status);
+
         String url = mvcResult.getResponse().getContentAsString();
-        URL = url;
-        // token = super.mapFromJson(content, String.class);
-        assertEquals(true, url.contains("http://localhost:80/users/newspassword?id="));
+
+        Boolean actual = url.contains("http://localhost:80/users/newspassword?id=");
+
+        assertEquals(true, actual);
 
     }
 
@@ -53,7 +51,8 @@ public class UserControllerTest extends AbstractTest {
         int status = mvcResult.getResponse().getStatus();
         assertEquals(200, status);
         String url = mvcResult.getResponse().getContentAsString();
-        // token = super.mapFromJson(content, String.class);
+
+
         assertEquals(true, url.contains("http://localhost:80/users/newspassword?id="));
 
         uri = url;
@@ -69,6 +68,7 @@ public class UserControllerTest extends AbstractTest {
     }
 
     @Test
+    @WithMockUser(username = "muratakkus", password = "Aa123456", authorities = "CHANGE_PASSWORD_ROLE")
     public void changePassword_OK() throws Exception {
 
         JwtTokenUtil jwtTokenUtil = new JwtTokenUtil("4dsight", 432000L);
@@ -81,17 +81,39 @@ public class UserControllerTest extends AbstractTest {
         changePasswordRequestDto.setUserId("5e1cb3a8c68777680f93aa40");
         String content = super.mapToJson(changePasswordRequestDto);
 
-        System.out.println(token);
+        String uri = "/users/changepassword";
 
-        System.out.println(content);
+        HttpHeaders httpHeaders = new HttpHeaders();
+        httpHeaders.add("Authorization", "Bearer ".concat(token));
+        httpHeaders.add("Content-Type", "application/json;charset=UTF-8;");
+        MvcResult mvcResult = mvc.perform(MockMvcRequestBuilders.post(uri)
+                .headers(httpHeaders)
+                .content(content)
+        ).andReturn();
+        int status = mvcResult.getResponse().getStatus();
+        assertEquals(201, status);
+    }
+
+    @Test(expected = NestedServletException.class)
+    @WithMockUser(username = "muratakkus", password = "pwd")
+    public void changePassword_AccesDenied() throws Exception {
+
+        JwtTokenUtil jwtTokenUtil = new JwtTokenUtil("4dsight", 432000L);
+        String username = "muratakkus";
+        String token = jwtTokenUtil.generateToken(username);
+
+        ChangePasswordRequestDto changePasswordRequestDto = new ChangePasswordRequestDto();
+        changePasswordRequestDto.setNewPassword("Aa123456");
+        changePasswordRequestDto.setNewPasswordAgain("Aa123456");
+        changePasswordRequestDto.setUserId("5e1cb3a8c68777680f93aa40");
+        String content = super.mapToJson(changePasswordRequestDto);
 
         String uri = "/users/changepassword";
 
         HttpHeaders httpHeaders = new HttpHeaders();
-        httpHeaders.add("Authorization","Bearer ".concat(token));
-        httpHeaders.add("Content-Type","application/json;charset=UTF-8;");
+        httpHeaders.add("Authorization", "Bearer ".concat(token));
+        httpHeaders.add("Content-Type", "application/json;charset=UTF-8;");
         MvcResult mvcResult = mvc.perform(MockMvcRequestBuilders.post(uri)
-                //.accept(MediaType.APPLICATION_JSON_VALUE)
                 .headers(httpHeaders)
                 .content(content)
         ).andReturn();

@@ -1,5 +1,6 @@
 package com.forsight.tokendemo.security;
 
+import com.forsight.tokendemo.exception.InvalidTokenException;
 import com.forsight.tokendemo.util.ApplicationContextProvider;
 import com.forsight.tokendemo.exception.ExpireTokenException;
 import com.forsight.tokendemo.util.JwtTokenUtil;
@@ -7,6 +8,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
 
@@ -41,14 +43,16 @@ public class JWTAuthorizationFilter extends BasicAuthenticationFilter {
             return;
         }
 
-        UsernamePasswordAuthenticationToken authentication = getAuthentication(req);
+        UsernamePasswordAuthenticationToken authentication = getAuthentication(header);
 
-        SecurityContextHolder.getContext().setAuthentication(authentication);
+        SecurityContext ctx = SecurityContextHolder.createEmptyContext();
+        SecurityContextHolder.setContext(ctx);
+        ctx.setAuthentication(authentication);
         chain.doFilter(req, res);
     }
 
-    private UsernamePasswordAuthenticationToken getAuthentication(HttpServletRequest request) {
-        String token = request.getHeader(AUTHORIZATION_HEADER_NAME);
+    private UsernamePasswordAuthenticationToken getAuthentication(String token) {
+        log.info("Set UsernamePasswordAuthenticationToken :{} ", token);
         token = token.replace(TOKEN_PREFIX, "");
 
 
@@ -59,12 +63,11 @@ public class JWTAuthorizationFilter extends BasicAuthenticationFilter {
         }
         String userName = jwtTokenUtil.getUsernameFromToken(token);
 
-        if (userName != null) {
-            log.info("Set UsernamePasswordAuthenticationToken :{} ", userName);
-            //TODO: Load user authorities from cache
-            return new UsernamePasswordAuthenticationToken(userName, null, Arrays.asList(new SimpleGrantedAuthority("CHANGE_PASSWORD_ROLE")));
-        }
-        return null;
+        if (userName == null) throw new InvalidTokenException();
+        log.info("Set UsernamePasswordAuthenticationToken :{} ", userName);
+        //TODO: Load user authorities from cache
+        return new UsernamePasswordAuthenticationToken(userName, null, Arrays.asList(new SimpleGrantedAuthority("CHANGE_PASSWORD_ROLE")));
+
     }
 
 }

@@ -4,6 +4,8 @@ import com.forsight.tokendemo.dto.ErrorDto;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
+import java.nio.file.AccessDeniedException;
+
 
 @ControllerAdvice(annotations = RestController.class)
 public class GlobalExceptionHandler {

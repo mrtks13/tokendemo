@@ -15,7 +15,7 @@ spring:
 
 jwt:
   secret: "4dSignKey"
-  expiration: 432000 # 120 * 60* 60
+  expiration: 432000 # 2 * 60* 60
 
 
 logging:
@@ -23,6 +23,9 @@ logging:
     org:
       springframework:
         security: DEBUG
+    com:
+      fosight:
+        tokendemo: DEBUG
 
 
 

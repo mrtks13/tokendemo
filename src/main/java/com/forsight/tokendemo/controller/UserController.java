@@ -40,7 +40,7 @@ public class UserController {
 
     @PostMapping(value = "/changepassword")
     @ResponseStatus(HttpStatus.CREATED)
-  //  @PreAuthorize("hasRole('CHANGE_PASSWORD_ROLE')")
+    @PreAuthorize("hasAuthority('CHANGE_PASSWORD_ROLE')")
     public void changePassword(@RequestBody @Valid ChangePasswordRequestDto changePassworRequestDto) {
         userService.changePassword(changePassworRequestDto);
     }

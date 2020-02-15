@@ -48,9 +48,9 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     public void configure(AuthenticationManagerBuilder auth) throws Exception {
         auth.userDetailsService(userDetailsService).passwordEncoder(bCryptPasswordEncoder);
         auth.inMemoryAuthentication()
-                .withUser("murat")
-                .password("akkus")
-                .roles("ADMIN");
+                .withUser("muratakkus")
+                .password("Aa123456")
+                .authorities("CHANGE_PASSWORD_ROLE");
     }
 
 
